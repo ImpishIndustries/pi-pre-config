@@ -3,7 +3,7 @@
 
 from questionnaire import Questionnaire
 import json, os
-q = Questionnaire()
+q = Questionnaire(show_answers=False, can_go_back=False)
 
 output_dir = "output"
 config_file = "config.txt"
