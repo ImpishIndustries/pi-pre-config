@@ -1,4 +1,6 @@
-# questions.py
+# Copyright © James Andrews 2017
+
+
 from questionnaire import Questionnaire
 import json, os
 q = Questionnaire()
