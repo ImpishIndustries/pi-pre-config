@@ -8,6 +8,8 @@ config_file = "config.txt"
 ssh_file = "ssh"
 wifi_file = "wpa_supplicant.conf"
 
+# Sets a key value pair in the config.txt that tells the raspberry pi
+# what configuration options are available at boot time.
 def set_config(key, value):
     global output_dir
     global config_file
@@ -18,17 +20,14 @@ def set_config(key, value):
     f.close()
 
 
-# Sets a key value pair in the config.txt that tells the raspberry pi
-# what configuration options are available at boot time.
-def set_config_comment(key, value):
+def set_config_comment(comment):
     global output_dir
     global config_file
 
     filename = output_dir + '/' + config_file
-    f = open(filename, 'a+')
-    f.write(key + "=" + value + "\n");
+    f = open(filename, 'a')
+    f.write("\n# " + comment + "\n")
     f.close()
-
 
 # Creates an empty ssh file that tells the raspberry pi to enable ssh
 def enable_ssh(enable):
@@ -84,7 +83,7 @@ q.one('enable_ssh', ('false', 'disabled (default)'), ('true', 'enabled'), prompt
 
 q.one('enable_i2c', ('false', 'disabled (default)'), ('true', 'enabled'), prompt='Enable I2C?')
 q.one('enable_i2s', ('false', 'disabled (default)'), ('true', 'enabled'), prompt='Enable I2S?')
-q.one('enable_SPI', ('false', 'disabled (default)'), ('true', 'enabled'), prompt='Enable SPI?')
+q.one('enable_spi', ('false', 'disabled (default)'), ('true', 'enabled'), prompt='Enable SPI?')
 
 q.run()
 
@@ -95,12 +94,16 @@ data  = json.loads(answers)
 
 for row in data:
     if row == 'lcd_rotate':
+        set_config_comment("Used to rotate the screen on Pi Foundation Touch Screen displays")
         set_config('lcd_rotate', data[row])
     elif row == 'enable_i2c' and data[row] == "true":
+        set_config_comment("Enable the optional I2C hardware interfaces")
         set_config('dtparam=i2c_arm', "on")
     elif row == 'enable_i2s' and data[row] == "true":
+        set_config_comment("Enable the optional I2S hardware interfaces")
         set_config('dtparam=i2s', "on")
     elif row == 'enable_spi' and data[row] == "true":
+        set_config_comment("Enable the optional SPI hardware interfaces")
         set_config('dtparam=spi', "on")
     elif row == 'enable_ssh':
         enable_ssh(data[row])
@@ -111,4 +114,5 @@ for row in data:
             set_wifi(data[row])
         
 # Add some additional default parameters that the user doesn't need to care about.
+set_config_comment("Enable audio (loads snd_bcm2835)")
 set_config('dtparam=audio', "on")
